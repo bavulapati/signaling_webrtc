@@ -1,0 +1,49 @@
+{
+    "name": "signaling_webrtc",
+    "version": "0.0.1",
+    "description": "Socket.IO signalling server for webrtc screen sharing",
+    "homepage": "https://github.com/bavulapati/singalling_webrtc#singalling_webrtc",
+    "bugs": "https://github.com/bavulapati/singalling_webrtc/issues",
+    "main": "dist/app.js",
+    "scripts": {
+        "start": "npm install && npm audit fix && npm test",
+        "lint": "tslint --project tsconfig.json --config tslint.json --fix",
+        "lint-added": "tslint --config tslint.json --fix",
+        "transpile": "tsc --build tsconfig.json",
+        "test": "npm run transpile && node dist/app.js"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.ts": [
+            "npm run lint-added",
+            "git add"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bavulapati/singalling_webrtc.git"
+    },
+    "keywords": [
+        "signaling",
+        "webrtc"
+    ],
+    "author": "Balakrishna Avulapati <bavulapati@gmail.com> (https://github.com/bavulapati)",
+    "license": "MIT",
+    "dependencies": {
+        "app-root-path": "^2.2.1",
+        "socket.io": "^2.2.0",
+        "winston": "^3.2.1"
+    },
+    "devDependencies": {
+        "@types/app-root-path": "^1.2.4",
+        "@types/node": "^11.12.2",
+        "@types/socket.io": "^2.1.2",
+        "tslint": "^5.14.0",
+        "tslint-microsoft-contrib": "^6.1.0",
+        "typescript": "^3.4.1"
+    }
+}
