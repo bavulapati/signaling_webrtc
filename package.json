@@ -5,12 +5,15 @@
     "homepage": "https://github.com/bavulapati/singalling_webrtc#singalling_webrtc",
     "bugs": "https://github.com/bavulapati/singalling_webrtc/issues",
     "main": "dist/app.js",
+    "config": {
+        "port": 8080
+    },
     "scripts": {
-        "start": "npm install && npm audit fix && npm test",
+        "test": "npm audit fix && npm run lint && npm run transpile && node .",
+        "start": "npm install && npm run transpile && node .",
         "lint": "tslint --project tsconfig.json --config tslint.json --fix",
         "lint-added": "tslint --config tslint.json --fix",
-        "transpile": "tsc --build tsconfig.json",
-        "test": "npm run transpile && node dist/app.js"
+        "transpile": "tsc --build tsconfig.json"
     },
     "husky": {
         "hooks": {
@@ -40,10 +43,10 @@
     },
     "devDependencies": {
         "@types/app-root-path": "^1.2.4",
-        "@types/node": "^11.13.10",
+        "@types/node": "^11.13.13",
         "@types/socket.io": "^2.1.2",
-        "tslint": "^5.16.0",
-        "tslint-microsoft-contrib": "^6.1.1",
-        "typescript": "^3.4.5"
+        "tslint": "^5.17.0",
+        "tslint-microsoft-contrib": "^6.2.0",
+        "typescript": "^3.5.1"
     }
 }

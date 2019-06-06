@@ -5,10 +5,9 @@ import { socketListeners } from './socketListeners';
 
 const server: http.Server = new http.Server();
 const io: socketIo.Server = socketIo(server);
-const port: number = 8080;
 
-server.listen(port, () => {
-    logger.info(`Listening on port ${port}`);
+server.listen(process.env.npm_package_config_port, () => {
+    logger.info(`Listening on port ${process.env.npm_package_config_port}`);
 });
 
 io.on('connect', socketListeners.onSocketConnect);
