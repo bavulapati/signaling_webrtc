@@ -1,10 +1,14 @@
 import http from 'http';
 import socketIo from 'socket.io';
+import { allowConnectionOnAuthentication } from './allowConnectionOnAuthentication';
 import { logger } from './logger';
 import { socketListeners } from './socketListeners';
 
 const server: http.Server = new http.Server();
+
 const io: socketIo.Server = socketIo(server);
+
+io.use(allowConnectionOnAuthentication);
 
 server.listen(process.env.npm_package_config_port, () => {
     logger.info(`Listening on port ${process.env.npm_package_config_port}`);
