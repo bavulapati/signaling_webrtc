@@ -7,6 +7,7 @@
         {
             "type": "node",
             "request": "launch",
+            "preLaunchTask": "transpile ts to js",
             "name": "Launch Program",
             "program": "${workspaceFolder}/dist/app.js",
             "outFiles": [
