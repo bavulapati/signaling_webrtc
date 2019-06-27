@@ -10,8 +10,13 @@ export const allowConnectionOnAuthentication: (socket: SocketIO.Socket, next: (e
         if (connectionQuery.accessToken === 'lifetime_host_access_token') {
             logger.info('Authentication succeeded.');
             const authenticatedUser: BmrUser = new BmrUser(connectionQuery.userName);
-            authenticatedUser.id = await BmrUserController.addUserIfNotPresent(authenticatedUser);
-            logger.info(`authenticated user id : ${authenticatedUser.id}`);
+            try {
+                authenticatedUser.id = await BmrUserController.GET_INSTANCE()
+                    .addUserIfNotPresent(authenticatedUser);
+            } catch (error) {
+                logger.error(<Error>error);
+                next(<Error>error);
+            }
             next();
         } else {
             logger.error('Authentication failed.');

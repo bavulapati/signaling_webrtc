@@ -1,11 +1,20 @@
 import socketIo from 'socket.io';
+// import { registerBmrHost } from './connectDataBase';
 import { socketMessages } from './constants/socketMessages';
+import { BmrServerController } from './controllers/BmrServerController';
 import { logger } from './logger';
 
 interface ICandidateMsg {
     label: number;
     id: string;
     candidate: string;
+}
+
+export interface IBmrUtilityResponse {
+    user_name: string;
+    bmr_serial_key: string;
+    access_token: string;
+    remote_disabled: number;
 }
 
 /**
@@ -19,6 +28,13 @@ class SocketListeners {
     public onSocketConnect(socket: socketIo.Socket): void {
         logger.info('a user connected');
         socket.on('disconnect', () => { logger.info('user disconnected'); });
+
+        socket.on(socketMessages.register, async (bmrUtilityResponse: IBmrUtilityResponse) => {
+            logger.info(`a bmr server - ${bmrUtilityResponse.bmr_serial_key} want's to register`);
+            const response: number = await BmrServerController.GET_INSTANCE()
+                .addServerIfNotPresent(bmrUtilityResponse);
+            logger.info(`response: ${response}`);
+        });
 
         socket.on(socketMessages.message, (message: string): void => {
             logger.info(`Client said: ${message}`);
