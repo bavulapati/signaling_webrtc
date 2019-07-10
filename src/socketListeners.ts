@@ -1,7 +1,10 @@
 import socketIo from 'socket.io';
-// import { registerBmrHost } from './connectDataBase';
+import { IConnectionQuery } from './allowConnectionOnAuthentication';
 import { socketMessages } from './constants/socketMessages';
 import { BmrServerController } from './controllers/BmrServerController';
+import { BmrUserController } from './controllers/BmrUserController';
+import { BmrServer } from './entity/BmrServer';
+import { BmrUser } from './entity/BmrUser';
 import { logger } from './logger';
 
 interface ICandidateMsg {
@@ -25,7 +28,8 @@ class SocketListeners {
     /**
      * onSocketConnect
      */
-    public onSocketConnect(socket: socketIo.Socket): void {
+    public async onSocketConnect(socket: socketIo.Socket): Promise<void> {
+
         logger.info('a user connected');
         socket.on('disconnect', () => { logger.info('user disconnected'); });
 
@@ -95,6 +99,20 @@ class SocketListeners {
             }
         });
 
+        // await this.emitServersList((<IConnectionQuery>(socket.handshake.query)).userName, socket);
+
+    }
+
+    private async emitServersList(userName: string, socket: socketIo.Socket): Promise<void> {
+        const authenticatedUser: BmrUser = new BmrUser(userName);
+        try {
+            const userController: BmrUserController = BmrUserController.GET_INSTANCE();
+            authenticatedUser.id = await userController.addUserIfNotPresent(authenticatedUser);
+            const serversOfUser: BmrServer[] = await userController.getServersOfUser(authenticatedUser);
+            socket.emit(socketMessages.serverList, serversOfUser);
+        } catch (error) {
+            logger.error(<Error>error);
+        }
     }
 }
 

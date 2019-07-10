@@ -1,4 +1,5 @@
 import { getRepository, Repository } from 'typeorm';
+import { BmrServer } from '../entity/BmrServer';
 import { BmrUser } from '../entity/BmrUser';
 import { logger } from '../logger';
 
@@ -53,5 +54,10 @@ export class BmrUserController {
         } catch (error) {
             throw error;
         }
+    }
+
+    public async getServersOfUser(user: BmrUser): Promise<BmrServer[]> {
+        return getRepository(BmrServer)
+            .find({ user: user });
     }
 }

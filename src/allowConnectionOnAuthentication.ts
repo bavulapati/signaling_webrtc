@@ -13,18 +13,18 @@ export const allowConnectionOnAuthentication: (socket: SocketIO.Socket, next: (e
             try {
                 authenticatedUser.id = await BmrUserController.GET_INSTANCE()
                     .addUserIfNotPresent(authenticatedUser);
+                next();
             } catch (error) {
                 logger.error(<Error>error);
                 next(<Error>error);
             }
-            next();
         } else {
             logger.error('Authentication failed.');
             next(new Error('You are not authorized to make connections.'));
         }
     };
 
-interface IConnectionQuery {
+export interface IConnectionQuery {
     accessToken: string;
     userName: string;
 }

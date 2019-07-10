@@ -65,6 +65,4 @@ export class BmrServerController {
         }
 
     }
-
-    // private async getServersOfUser()
 }
