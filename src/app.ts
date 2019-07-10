@@ -9,7 +9,7 @@ const server: http.Server = new http.Server();
 
 const io: socketIo.Server = socketIo(server);
 
-io.use(allowConnectionOnAuthentication);
+// io.use(allowConnectionOnAuthentication);
 
 server.listen(process.env.npm_package_config_port, () => {
     logger.info(`Listening on port ${process.env.npm_package_config_port}`);
