@@ -1,12 +1,12 @@
 {
-   "type": "test",
-   "host": "test",
+   "type": "mysql",
+   "host": "ec2-13-229-127-186.ap-southeast-1.compute.amazonaws.com",
    "port": 3306,
-   "username": "test",
-   "password": "test",
-   "database": "test",
-   "synchronize": false,
-   "logging": false,
+   "username": "bmrtest",
+   "password": "bmrTest@123",
+   "database": "bmr",
+   "synchronize": true,
+   "logging": true,
    "entities": [
       "dist/entity/**/*.js"
    ],
