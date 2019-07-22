@@ -40,6 +40,11 @@ class SocketListeners {
         //     logger.info(`response: ${response}`);
         // });
 
+        socket.on('echo' , (message: string): void => {
+            logger.info(`receied echo messages as ${message}`);
+            socket.emit('echo', message);
+        });
+
         socket.on(socketMessages.message, (message: string): void => {
             logger.info(`Client said: ${message}`);
             // for a real app, would be room-only (not broadcast)
