@@ -9,10 +9,12 @@ const server: http.Server = new http.Server();
 
 const io: socketIo.Server = socketIo(server);
 
+const port: number = 8080;
+
 // io.use(allowConnectionOnAuthentication);
 
-server.listen(process.env.npm_package_config_port, () => {
-    logger.info(`Listening on port ${process.env.npm_package_config_port}`);
+server.listen(port, () => {
+    logger.info(`Listening on port ${port}`);
     createDatabaseConnection();
 });
 
