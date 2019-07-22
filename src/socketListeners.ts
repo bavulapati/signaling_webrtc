@@ -93,11 +93,11 @@ class SocketListeners {
             if (numClients === 0) {
                 socket.join(room);
                 logger.info(`Client ID ${socket.id} created room ${room}`);
-                socket.emit(socketMessages.created, room, socket.id);
+                socket.emit(socketMessages.created, room);
             } else if (numClients === 1) {
                 logger.info(`Client ID ${socket.id} joined room ${room}`);
                 socket.join(room);
-                socket.emit(socketMessages.joined, room, socket.id);
+                socket.emit(socketMessages.joined, room);
             } else {
                 // max two clients
                 socket.emit(socketMessages.full, room);
