@@ -65,3 +65,6 @@ typings/
 
 # The connection details of Database
 ormconfig.json
+
+# avoid conflicts with package-lock.json
+package-lock.json

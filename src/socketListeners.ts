@@ -51,32 +51,32 @@ class SocketListeners {
             socket.broadcast.emit(socketMessages.message, message);
         });
 
-        socket.on(socketMessages.iceCandidate, (iceCandidate: ICandidateMsg, room: string, clientId: string) => {
-            logger.info(`received ice-candidate from client: ${clientId}`);
+        socket.on(socketMessages.iceCandidate, (iceCandidate: ICandidateMsg, room: string) => {
+            logger.info(`received ice-candidate in the room: ${room}`);
             socket.to(room)
                 .emit(socketMessages.iceCandidate, iceCandidate);
         });
 
-        socket.on(socketMessages.offer, (description: RTCSessionDescriptionInit, room: string, clientId: string) => {
-            logger.info(`received offer from client: ${clientId}`);
+        socket.on(socketMessages.offer, (description: RTCSessionDescriptionInit, room: string) => {
+            logger.info(`received offer in the room: ${room}`);
             socket.to(room)
                 .emit(socketMessages.offer, description);
         });
 
-        socket.on(socketMessages.answer, (description: RTCSessionDescriptionInit, room: string, clientId: string) => {
-            logger.info(`received answer from client: ${clientId}`);
+        socket.on(socketMessages.answer, (description: RTCSessionDescriptionInit, room: string) => {
+            logger.info(`received answer in the room: ${room}`);
             socket.to(room)
                 .emit(socketMessages.answer, description);
         });
 
-        socket.on(socketMessages.startCall, (room: string, clientId: string) => {
-            logger.info(`${clientId} wants to start call`);
+        socket.on(socketMessages.startCall, (room: string) => {
+            logger.info(`${room} is creating a call`);
             socket.to(room)
                 .emit(socketMessages.startCall);
         });
 
-        socket.on(socketMessages.hangUp, (room: string, clientId: string) => {
-            logger.info(`${clientId} wants to hang up call`);
+        socket.on(socketMessages.hangUp, (room: string) => {
+            logger.info(`${room} wants to hang up call`);
             socket.to(room)
                 .emit(socketMessages.hangUp);
         });
