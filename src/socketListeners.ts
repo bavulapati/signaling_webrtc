@@ -28,19 +28,22 @@ class SocketListeners {
     /**
      * onSocketConnect
      */
-    public async onSocketConnect(socket: socketIo.Socket): Promise<void> {
-
+    public onSocketConnect = async (socket: socketIo.Socket): Promise<void> => {
         logger.info('a user connected');
         socket.on('disconnect', () => { logger.info('user disconnected'); });
 
         // socket.on(socketMessages.register, async (bmrUtilityResponse: IBmrUtilityResponse) => {
         //     logger.info(`a bmr server - ${bmrUtilityResponse.bmr_serial_key} want's to register`);
-        //     const response: number = await BmrServerController.GET_INSTANCE()
-        //         .addServerIfNotPresent(bmrUtilityResponse);
-        //     logger.info(`response: ${response}`);
+        //     try {
+        //         const response: number = await BmrServerController.GET_INSTANCE()
+        //             .addServerIfNotPresent(bmrUtilityResponse);
+        //         logger.info(`response: ${response}`);
+        //     } catch (error) {
+        //         logger.error(`${error}`);
+        //     }
         // });
 
-        socket.on('echo' , (message: string): void => {
+        socket.on('echo', (message: string): void => {
             logger.info(`receied echo messages as ${message}`);
             socket.emit('echo', message);
         });
@@ -83,29 +86,46 @@ class SocketListeners {
 
         socket.on(socketMessages.createOrJoinRoom, (room: string): void => {
             logger.info(`Received request to create or join room ${room}`);
-            const clientsInRoom: socketIo.Room = socket.server.sockets.adapter.rooms[room];
-            const numClients: number = clientsInRoom !== undefined
-                ? Object.keys(clientsInRoom.sockets).length
-                : 0;
-
-            logger.info(`Room ${room} now has ${numClients} client(s)`);
-
+            logger.info(socket.server.sockets.adapter.rooms[room]);
+            const numClients: number = socket.server.sockets.adapter.rooms[room]
+                === undefined ? 0 : Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length;
+            logger.info(`Room ${room} now has ${numClients} client(s)1`);
             if (numClients === 0) {
-                socket.join(room);
-                logger.info(`Client ID ${socket.id} created room ${room}`);
-                socket.emit(socketMessages.created, room);
+                socket.join(room, (error: Error): void => {
+                    if (error === null) {
+                        logger.info(JSON.stringify(socket.rooms));
+                        logger.info(`Room ${room} now has
+                        ${Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length} client(s)2`);
+                        logger.info(`Client ID ${socket.id} created room ${room}`);
+                        socket.emit(socketMessages.created, room);
+                    } else {
+                        logger.error(error);
+                    }
+                });
             } else if (numClients === 1) {
-                logger.info(`Client ID ${socket.id} joined room ${room}`);
-                socket.join(room);
-                socket.emit(socketMessages.joined, room);
+                socket.join(room, (error: Error): void => {
+                    if (error === null) {
+                        logger.info(JSON.stringify(socket.rooms));
+                        logger.info(`Client ID ${socket.id} joined room ${room}`);
+                        logger.info(`Room ${room} now has
+                        ${Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length} client(s)3`);
+                        socket.emit(socketMessages.joined, room);
+                    } else {
+                        logger.error(error);
+                    }
+                });
             } else {
                 // max two clients
                 socket.emit(socketMessages.full, room);
             }
         });
-
-        // await this.emitServersList((<IConnectionQuery>(socket.handshake.query)).userName, socket);
-
+        try {
+            const userName: string = (<IConnectionQuery>(socket.handshake.query)).userName;
+            logger.info(`received user_name: ${userName}`);
+            await this.emitServersList(userName, socket);
+        } catch (error) {
+            logger.error(`error:  --- ${error}`);
+        }
     }
 
     private async emitServersList(userName: string, socket: socketIo.Socket): Promise<void> {
@@ -119,6 +139,7 @@ class SocketListeners {
             logger.error(<Error>error);
         }
     }
+
 }
 
 export const socketListeners: SocketListeners = new SocketListeners();
