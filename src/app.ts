@@ -15,7 +15,7 @@ const server: https.Server = new https.Server(options);
 
 const io: socketIo.Server = socketIo(server);
 
-const port: number = 8080;
+const port: number = 443;
 
 // io.use(allowConnectionOnAuthentication);
 
