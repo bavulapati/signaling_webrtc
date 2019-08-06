@@ -14,8 +14,6 @@ const options: https.ServerOptions = {
 const server: https.Server = new https.Server(options);
 
 const io: socketIo.Server = socketIo(server);
-// tslint:disable-next-line: no-http-string
-io.origins(['http://192.168.3.204:3000']);
 
 const port: number = 8080;
 
