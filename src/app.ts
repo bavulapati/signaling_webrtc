@@ -7,8 +7,8 @@ import { logger } from './logger';
 import { socketListeners } from './socketListeners';
 
 const options: https.ServerOptions = {
-  key: fs.readFileSync('/home/ec2-user/openSsl/key.pem'),
-  cert: fs.readFileSync('/home/ec2-user/openSsl/cert.pem')
+  key: fs.readFileSync('/etc/letsencrypt/live/bmrsignal.idrivelite.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/bmrsignal.idrivelite.com/fullchain.pem')
 };
 
 const server: https.Server = new https.Server(options);
