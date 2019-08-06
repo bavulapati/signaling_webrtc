@@ -1,11 +1,17 @@
-import http from 'http';
+import fs from 'fs';
+import https from 'https';
 import socketIo from 'socket.io';
-import { allowConnectionOnAuthentication } from './allowConnectionOnAuthentication';
+// import { allowConnectionOnAuthentication } from './allowConnectionOnAuthentication';
 import { closeDatabaseConnection, createDatabaseConnection } from './createDatabaseConnection';
 import { logger } from './logger';
 import { socketListeners } from './socketListeners';
 
-const server: http.Server = new http.Server();
+const options: https.ServerOptions = {
+  key: fs.readFileSync('/home/ec2-user/openSsl/key.pem'),
+  cert: fs.readFileSync('/home/ec2-user/openSsl/cert.pem')
+};
+
+const server: https.Server = new https.Server(options);
 
 const io: socketIo.Server = socketIo(server);
 
