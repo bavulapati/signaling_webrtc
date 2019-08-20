@@ -57,13 +57,13 @@ class SocketListeners {
         socket.on(socketMessages.iceCandidate, (iceCandidate: ICandidateMsg, room: string) => {
             logger.info(`received ice-candidate in the room: ${room}`);
             socket.to(room)
-                .emit(socketMessages.iceCandidate, iceCandidate);
+                .emit(room, socketMessages.iceCandidate, iceCandidate);
         });
 
         socket.on(socketMessages.offer, (description: RTCSessionDescriptionInit, room: string) => {
             logger.info(`received offer in the room: ${room}`);
             socket.to(room)
-                .emit(socketMessages.offer, description);
+                .emit(room, socketMessages.offer, description);
         });
 
         socket.on(socketMessages.answer, (description: RTCSessionDescriptionInit, room: string) => {
