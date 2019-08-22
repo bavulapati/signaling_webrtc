@@ -1,7 +1,7 @@
 import fs from 'fs';
 import https from 'https';
 import socketIo from 'socket.io';
-// import { allowConnectionOnAuthentication } from './allowConnectionOnAuthentication';
+import { allowConnectionOnAuthentication } from './allowConnectionOnAuthentication';
 import { closeDatabaseConnection, createDatabaseConnection } from './createDatabaseConnection';
 import { logger } from './logger';
 import { socketListeners } from './socketListeners';
@@ -17,7 +17,7 @@ const io: socketIo.Server = socketIo(server);
 
 const port: number = 443;
 
-// io.use(allowConnectionOnAuthentication);
+io.use(allowConnectionOnAuthentication);
 
 server.listen(port, () => {
     logger.info(`Listening on port ${port}`);

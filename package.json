@@ -39,14 +39,15 @@
         "reflect-metadata": "^0.1.13",
         "socket.io": "^2.2.0",
         "typeorm": "^0.2.18",
-        "winston": "^3.2.1"
+        "winston": "^3.2.1",
+        "xml-js": "^1.6.11"
     },
     "devDependencies": {
         "@types/app-root-path": "^1.2.4",
-        "@types/mysql": "^2.15.6",
-        "@types/node": "^11.13.18",
+        "@types/mysql": "^2.15.7",
+        "@types/node": "^11.13.19",
         "@types/socket.io": "^2.1.2",
-        "tslint": "^5.18.0",
+        "tslint": "^5.19.0",
         "tslint-microsoft-contrib": "^6.2.0",
         "typescript": "^3.5.3"
     }
