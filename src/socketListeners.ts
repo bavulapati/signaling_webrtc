@@ -4,6 +4,7 @@ import { BmrServerController } from './controllers/BmrServerController';
 import { BmrUserController } from './controllers/BmrUserController';
 import { BmrServer } from './entity/BmrServer';
 import { BmrUser } from './entity/BmrUser';
+import { ServerStatus } from './enums';
 import { ICandidateMsg, IConnectionQuery } from './interfaces';
 import { logger } from './logger';
 
@@ -17,7 +18,14 @@ class SocketListeners {
      */
     public onSocketConnect = async (socket: socketIo.Socket): Promise<void> => {
         logger.info('a user connected');
-        socket.on('disconnect', () => { logger.info('user disconnected'); });
+        socket.on('disconnect', async () => {
+            logger.info('user disconnected');
+            const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+            if (connectionQuery.isHost === true) {
+                await BmrServerController.GET_INSTANCE()
+                    .updateStatus(ServerStatus.offline, connectionQuery.serialKey);
+            }
+        });
 
         socket.on(socketMessages.register, async (room: string) => {
             logger.info(`a bmr server - ${room} want's to register`);
@@ -60,52 +68,22 @@ class SocketListeners {
                 .emit(socketMessages.answer, description);
         });
 
-        socket.on(socketMessages.startCall, (room: string) => {
+        socket.on(socketMessages.startCall, async (room: string) => {
             logger.info(`${room} is creating a call`);
             socket.to(room)
                 .emit(socketMessages.startCall);
         });
 
-        socket.on(socketMessages.hangUp, (room: string) => {
+        socket.on(socketMessages.hangUp, async (room: string) => {
             logger.info(`${room} wants to hang up call`);
+            await BmrServerController.GET_INSTANCE()
+                .updateStatus(ServerStatus.online, room);
             socket.to(room)
                 .emit(socketMessages.hangUp);
         });
 
-        socket.on(socketMessages.createOrJoinRoom, (room: string): void => {
-            logger.info(`Received request to create or join room ${room}`);
-            logger.info(socket.server.sockets.adapter.rooms[room]);
-            const numClients: number = socket.server.sockets.adapter.rooms[room]
-                === undefined ? 0 : Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length;
-            logger.info(`Room ${room} now has ${numClients} client(s)1`);
-            if (numClients === 0) {
-                socket.join(room, (error: Error): void => {
-                    if (error === null) {
-                        logger.info(JSON.stringify(socket.rooms));
-                        logger.info(`Room ${room} now has
-                        ${Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length} client(s)2`);
-                        logger.info(`Client ID ${socket.id} created room ${room}`);
-                        socket.emit(socketMessages.created, room);
-                    } else {
-                        logger.error(error);
-                    }
-                });
-            } else if (numClients === 1) {
-                socket.join(room, (error: Error): void => {
-                    if (error === null) {
-                        logger.info(JSON.stringify(socket.rooms));
-                        logger.info(`Client ID ${socket.id} joined room ${room}`);
-                        logger.info(`Room ${room} now has
-                        ${Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length} client(s)3`);
-                        socket.emit(socketMessages.joined, room);
-                    } else {
-                        logger.error(error);
-                    }
-                });
-            } else {
-                // max two clients
-                socket.emit(socketMessages.full, room);
-            }
+        socket.on(socketMessages.createOrJoinRoom, async (room: string): Promise<void> => {
+            await this.createOrJoinRoom(socket, room);
         });
         try {
             const userName: string = (<IConnectionQuery>(socket.handshake.query)).userName;
@@ -113,6 +91,45 @@ class SocketListeners {
             await this.emitServersList(userName, socket);
         } catch (error) {
             logger.error(`error:  --- ${error}`);
+        }
+    }
+
+    private async createOrJoinRoom(socket: socketIo.Socket, room: string): Promise<void> {
+        logger.info(`Received request to create or join room ${room}`);
+        logger.info(socket.server.sockets.adapter.rooms[room]);
+        const numClients: number = socket.server.sockets.adapter.rooms[room]
+            === undefined ? 0 : Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length;
+        logger.info(`Room ${room} now has ${numClients} client(s)1`);
+        if (numClients === 0) {
+            socket.join(room, (error: Error): void => {
+                if (error === null) {
+                    logger.info(JSON.stringify(socket.rooms));
+                    logger.info(`Room ${room} now has
+                        ${Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length} client(s)2`);
+                    logger.info(`Client ID ${socket.id} created room ${room}`);
+                    socket.emit(socketMessages.created, room);
+                } else {
+                    logger.error(error);
+                }
+            });
+        } else if (numClients === 1) {
+            socket.join(room, (error: Error): void => {
+                if (error === null) {
+                    logger.info(JSON.stringify(socket.rooms));
+                    logger.info(`Client ID ${socket.id} joined room ${room}`);
+                    logger.info(`Room ${room} now has
+                        ${Object.keys(socket.server.sockets.adapter.rooms[room].sockets).length} client(s)3`);
+                    socket.emit(socketMessages.joined, room);
+                } else {
+                    logger.error(error);
+                }
+            });
+
+            await BmrServerController.GET_INSTANCE()
+                .updateStatus(ServerStatus.insession, room);
+        } else {
+            // max two clients
+            socket.emit(socketMessages.full, room);
         }
     }
 

@@ -13,7 +13,8 @@ export const allowConnectionOnAuthentication: (socket: SocketIO.Socket, next: (e
 
         const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
         logger.info(`connectionQuery.accessToken: ${connectionQuery.accessToken} &
-                        connectionQuery.userName: ${connectionQuery.userName}`);
+                        connectionQuery.userName: ${connectionQuery.userName} &
+                        connectionQuery.isHost: ${connectionQuery.isHost}`);
         try {
             if (await isValidUser(connectionQuery) === true) {
                 logger.info('Authentication succeeded.');

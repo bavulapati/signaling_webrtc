@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ServerStatus } from '../enums';
 import { BmrUser } from './BmrUser';
 
 /**
@@ -29,11 +30,4 @@ export class BmrServer {
         this.user = user;
     }
 
-}
-
-export enum ServerStatus {
-    online,
-    offline,
-    insession,
-    disabled
 }

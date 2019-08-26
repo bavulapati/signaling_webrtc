@@ -16,6 +16,8 @@ export interface IBmrUtilityResponse {
 export interface IConnectionQuery {
     accessToken: string;
     userName: string;
+    isHost: boolean;
+    serialKey: string;
 }
 
 export interface IValidateTokenResponse {

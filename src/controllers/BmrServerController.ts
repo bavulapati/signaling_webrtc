@@ -1,7 +1,8 @@
-import { getRepository, Repository } from 'typeorm';
-import { IConnectionQuery } from '../allowConnectionOnAuthentication';
-import { BmrServer, ServerStatus } from '../entity/BmrServer';
+import { getConnection, getRepository, Repository } from 'typeorm';
+import { BmrServer } from '../entity/BmrServer';
 import { BmrUser } from '../entity/BmrUser';
+import { ServerStatus } from '../enums';
+import { IConnectionQuery } from '../interfaces';
 import { logger } from '../logger';
 import { BmrUserController } from './BmrUserController';
 
@@ -17,6 +18,19 @@ export class BmrServerController {
         }
 
         return BmrServerController.controllerInstance;
+    }
+
+    public async updateStatus(status: ServerStatus, serialKey: string): Promise<void> {
+        try {
+            await getConnection()
+                .createQueryBuilder()
+                .update(BmrServer)
+                .set({ status })
+                .where('serialKey = :id', { id: serialKey })
+                .execute();
+        } catch (error) {
+            logger.error(`${error}`);
+        }
     }
 
     public async addServerIfNotPresent(connectionQuery: IConnectionQuery, room: string): Promise<number> {
@@ -37,7 +51,7 @@ export class BmrServerController {
                 return <number>persistedBmrServer.id;
             }
         } catch (error) {
-            logger.error(<Error>error);
+            logger.error(`${error}`);
         }
 
         return -1;
