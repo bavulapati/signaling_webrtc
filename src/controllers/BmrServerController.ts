@@ -1,8 +1,8 @@
 import { getRepository, Repository } from 'typeorm';
+import { IConnectionQuery } from '../allowConnectionOnAuthentication';
 import { BmrServer, ServerStatus } from '../entity/BmrServer';
 import { BmrUser } from '../entity/BmrUser';
 import { logger } from '../logger';
-import { IBmrUtilityResponse } from '../socketListeners';
 import { BmrUserController } from './BmrUserController';
 
 /**
@@ -19,10 +19,10 @@ export class BmrServerController {
         return BmrServerController.controllerInstance;
     }
 
-    public async addServerIfNotPresent(bmrUtilityResponse: IBmrUtilityResponse): Promise<number> {
-        const user: BmrUser = new BmrUser(bmrUtilityResponse.user_name);
+    public async addServerIfNotPresent(connectionQuery: IConnectionQuery, room: string): Promise<number> {
+        const user: BmrUser = new BmrUser(connectionQuery.userName);
         const bmrServer: BmrServer
-            = new BmrServer(bmrUtilityResponse.bmr_serial_key, bmrUtilityResponse.bmr_serial_key, ServerStatus.online, user);
+            = new BmrServer(room, room, ServerStatus.online, user);
         let persistedBmrServer: BmrServer;
         try {
             const serverRepository: Repository<BmrServer> = getRepository(BmrServer);

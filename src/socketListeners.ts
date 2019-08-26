@@ -32,16 +32,17 @@ class SocketListeners {
         logger.info('a user connected');
         socket.on('disconnect', () => { logger.info('user disconnected'); });
 
-        // socket.on(socketMessages.register, async (bmrUtilityResponse: IBmrUtilityResponse) => {
-        //     logger.info(`a bmr server - ${bmrUtilityResponse.bmr_serial_key} want's to register`);
-        //     try {
-        //         const response: number = await BmrServerController.GET_INSTANCE()
-        //             .addServerIfNotPresent(bmrUtilityResponse);
-        //         logger.info(`response: ${response}`);
-        //     } catch (error) {
-        //         logger.error(`${error}`);
-        //     }
-        // });
+        socket.on(socketMessages.register, async (room: string) => {
+            logger.info(`a bmr server - ${room} want's to register`);
+            try {
+                const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+                const response: number = await BmrServerController.GET_INSTANCE()
+                    .addServerIfNotPresent(connectionQuery, room);
+                logger.info(`response: ${response}`);
+            } catch (error) {
+                logger.error(`${error}`);
+            }
+        });
 
         socket.on('echo', (message: string): void => {
             logger.info(`receied echo messages as ${message}`);
