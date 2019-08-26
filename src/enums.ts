@@ -6,6 +6,5 @@ export enum tokenResponseMessage {
 export enum ServerStatus {
     online,
     offline,
-    insession,
-    disabled
+    insession
 }
