@@ -1,24 +1,11 @@
 import socketIo from 'socket.io';
-import { IConnectionQuery } from './allowConnectionOnAuthentication';
 import { socketMessages } from './constants/socketMessages';
 import { BmrServerController } from './controllers/BmrServerController';
 import { BmrUserController } from './controllers/BmrUserController';
 import { BmrServer } from './entity/BmrServer';
 import { BmrUser } from './entity/BmrUser';
+import { ICandidateMsg, IConnectionQuery } from './interfaces';
 import { logger } from './logger';
-
-interface ICandidateMsg {
-    label: number;
-    id: string;
-    candidate: string;
-}
-
-export interface IBmrUtilityResponse {
-    user_name: string;
-    bmr_serial_key: string;
-    access_token: string;
-    remote_disabled: number;
-}
 
 /**
  * Listeners for socket messages

@@ -4,6 +4,8 @@ import { stringify } from 'querystring';
 import { xml2json } from 'xml-js';
 import { BmrUserController } from './controllers/BmrUserController';
 import { BmrUser } from './entity/BmrUser';
+import { tokenResponseMessage } from './enums';
+import { IConnectionQuery, IValidateTokenResponse } from './interfaces';
 import { logger } from './logger';
 
 export const allowConnectionOnAuthentication: (socket: SocketIO.Socket, next: (err?: Error) => void) => void
@@ -33,27 +35,6 @@ export const allowConnectionOnAuthentication: (socket: SocketIO.Socket, next: (e
             next(<Error>error);
         }
     };
-
-export interface IConnectionQuery {
-    accessToken: string;
-    userName: string;
-}
-
-interface IValidateTokenResponse {
-    root: {
-        status: {
-            _attributes: {
-                desc: string;
-                message: tokenResponseMessage;
-            };
-        };
-    };
-}
-
-enum tokenResponseMessage {
-    success = 'SUCCESS',
-    failure = 'FAILURE'
-}
 
 async function isValidUser(connectionQuery: IConnectionQuery): Promise<boolean> {
     return new Promise(
