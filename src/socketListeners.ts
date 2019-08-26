@@ -5,7 +5,7 @@ import { BmrUserController } from './controllers/BmrUserController';
 import { BmrServer } from './entity/BmrServer';
 import { BmrUser } from './entity/BmrUser';
 import { ServerStatus } from './enums';
-import { ICandidateMsg, IConnectionQuery } from './interfaces';
+import { IBmrServerStatusUpdate, ICandidateMsg, IConnectionQuery } from './interfaces';
 import { logger } from './logger';
 
 /**
@@ -18,22 +18,22 @@ class SocketListeners {
      */
     public onSocketConnect = async (socket: socketIo.Socket): Promise<void> => {
         logger.info('a user connected');
+        const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+        this.addToUserRoomIfNotHost(socket, connectionQuery);
         socket.on('disconnect', async () => {
             logger.info('user disconnected');
-            const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
             if (connectionQuery.isHost === true) {
-                await BmrServerController.GET_INSTANCE()
-                    .updateStatus(ServerStatus.offline, connectionQuery.serialKey);
+                await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.offline);
             }
         });
 
         socket.on(socketMessages.register, async (room: string) => {
             logger.info(`a bmr server - ${room} want's to register`);
             try {
-                const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
                 const response: number = await BmrServerController.GET_INSTANCE()
                     .addServerIfNotPresent(connectionQuery, room);
                 logger.info(`response: ${response}`);
+                await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
             } catch (error) {
                 logger.error(`${error}`);
             }
@@ -76,8 +76,7 @@ class SocketListeners {
 
         socket.on(socketMessages.hangUp, async (room: string) => {
             logger.info(`${room} wants to hang up call`);
-            await BmrServerController.GET_INSTANCE()
-                .updateStatus(ServerStatus.online, room);
+            await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
             socket.to(room)
                 .emit(socketMessages.hangUp);
         });
@@ -124,12 +123,36 @@ class SocketListeners {
                     logger.error(error);
                 }
             });
-
-            await BmrServerController.GET_INSTANCE()
-                .updateStatus(ServerStatus.insession, room);
+            const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+            await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.insession);
         } else {
-            // max two clients
-            socket.emit(socketMessages.full, room);
+            socket.emit(socketMessages.full, room); // max two clients
+        }
+    }
+
+    private async updateBmrHostStatus(socket: socketIo.Socket
+        ,                             connectionQuery: IConnectionQuery
+        ,                             serverStatus: ServerStatus): Promise<void> {
+        const bmrServerStatusUpdate: IBmrServerStatusUpdate = {
+            serialKey: connectionQuery.serialKey,
+            status: serverStatus
+        };
+        await BmrServerController.GET_INSTANCE()
+            .updateStatus(bmrServerStatusUpdate.status, connectionQuery.serialKey);
+        socket.to(connectionQuery.userName)
+            .emit(socketMessages.statusUpdate, bmrServerStatusUpdate);
+    }
+
+    private addToUserRoomIfNotHost(socket: socketIo.Socket, connectionQuery: IConnectionQuery): void {
+        if (connectionQuery.isHost === false) {
+            socket.join(connectionQuery.userName, (error: Error): void => {
+                if (error === null) {
+                    logger.info(`Room ${connectionQuery.userName} now has
+                        ${Object.keys(socket.server.sockets.adapter.rooms[connectionQuery.userName].sockets).length} client(s)`);
+                } else {
+                    logger.error(error);
+                }
+            });
         }
     }
 
