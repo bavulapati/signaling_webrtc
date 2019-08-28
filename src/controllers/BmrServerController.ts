@@ -33,6 +33,20 @@ export class BmrServerController {
         }
     }
 
+    public async checkStatus(serialKey: string): Promise<void> {
+        try {
+            const serverRepository: Repository<BmrServer> = getRepository(BmrServer);
+            const server: BmrServer | undefined = await serverRepository.findOne({ where: { serialKey: serialKey } });
+            if (server !== undefined) {
+                logger.info(server);
+            } else {
+                logger.info('server is not found');
+            }
+        } catch (error) {
+            logger.error(`${error}`);
+        }
+    }
+
     public async addServerIfNotPresent(connectionQuery: IConnectionQuery, room: string): Promise<number> {
         const user: BmrUser = new BmrUser(connectionQuery.userName);
         const bmrServer: BmrServer
@@ -67,6 +81,7 @@ export class BmrServerController {
                 return false;
             } else {
                 logger.info(`server already exists with id - ${foundServer.id}`);
+                logger.info(`Server info: ${foundServer}`);
                 bmrServer.name = foundServer.name;
                 bmrServer.user = foundServer.user;
                 bmrServer.status = foundServer.status;

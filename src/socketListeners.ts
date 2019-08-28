@@ -21,7 +21,7 @@ class SocketListeners {
         const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
         this.addToUserRoomIfNotHost(socket, connectionQuery);
         socket.on('disconnect', async () => {
-            logger.info('user disconnected');
+            logger.info(`${connectionQuery.isHost ? 'Host' + ` ${connectionQuery.serialKey}` : 'Viewer'} socket disconnected`);
             if (connectionQuery.isHost === true) {
                 await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.offline);
             }
@@ -143,11 +143,8 @@ class SocketListeners {
         try {
             await BmrServerController.GET_INSTANCE()
                 .updateStatus(bmrServerStatusUpdate.status, connectionQuery.serialKey);
-            const authenticatedUser: BmrUser = new BmrUser(connectionQuery.userName);
-            const userController: BmrUserController = BmrUserController.GET_INSTANCE();
-            authenticatedUser.id = await userController.addUserIfNotPresent(authenticatedUser);
-            const serversOfUser: BmrServer[] = await userController.getServersOfUser(authenticatedUser);
-            logger.info(`serversOfUser: ${JSON.stringify(serversOfUser)}`);
+            await BmrServerController.GET_INSTANCE()
+                .checkStatus(bmrServerStatusUpdate.serialKey);
         } catch (error) {
             logger.error(<Error>error);
         }
