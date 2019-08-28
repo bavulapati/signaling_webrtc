@@ -18,7 +18,7 @@ class SocketListeners {
      */
     public onSocketConnect = async (socket: socketIo.Socket): Promise<void> => {
         logger.info('a user connected');
-        const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+        const connectionQuery: IConnectionQuery = <IConnectionQuery>(JSON.parse(<string>socket.handshake.query));
         this.addToUserRoomIfNotHost(socket, connectionQuery);
         socket.on('disconnect', async () => {
             logger.info(`host: ${connectionQuery.isHost}`);
@@ -133,8 +133,8 @@ class SocketListeners {
     }
 
     private async updateBmrHostStatus(socket: socketIo.Socket
-        , connectionQuery: IConnectionQuery
-        , serverStatus: ServerStatus): Promise<void> {
+        ,                             connectionQuery: IConnectionQuery
+        ,                             serverStatus: ServerStatus): Promise<void> {
 
         logger.info(`trying to update the status to ${serverStatus} for the server ${connectionQuery.serialKey}`);
         const bmrServerStatusUpdate: IBmrServerStatusUpdate = {
