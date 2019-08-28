@@ -162,6 +162,7 @@ class SocketListeners {
             const userController: BmrUserController = BmrUserController.GET_INSTANCE();
             authenticatedUser.id = await userController.addUserIfNotPresent(authenticatedUser);
             const serversOfUser: BmrServer[] = await userController.getServersOfUser(authenticatedUser);
+            logger.info(`serversOfUser: ${JSON.stringify(serversOfUser)}`);
             socket.emit(socketMessages.serverList, serversOfUser);
         } catch (error) {
             logger.error(<Error>error);
