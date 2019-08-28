@@ -124,6 +124,7 @@ class SocketListeners {
                 }
             });
             const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+            connectionQuery.serialKey = room;
             await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.insession);
         } else {
             socket.emit(socketMessages.full, room); // max two clients
@@ -141,7 +142,7 @@ class SocketListeners {
         };
         try {
             await BmrServerController.GET_INSTANCE()
-            .updateStatus(bmrServerStatusUpdate.status, connectionQuery.serialKey);
+                .updateStatus(bmrServerStatusUpdate.status, connectionQuery.serialKey);
             const authenticatedUser: BmrUser = new BmrUser(connectionQuery.userName);
             const userController: BmrUserController = BmrUserController.GET_INSTANCE();
             authenticatedUser.id = await userController.addUserIfNotPresent(authenticatedUser);
