@@ -133,12 +133,23 @@ class SocketListeners {
     private async updateBmrHostStatus(socket: socketIo.Socket
         ,                             connectionQuery: IConnectionQuery
         ,                             serverStatus: ServerStatus): Promise<void> {
+
+        logger.info(`trying to update the status to ${serverStatus} for the server ${connectionQuery.serialKey}`);
         const bmrServerStatusUpdate: IBmrServerStatusUpdate = {
             serialKey: connectionQuery.serialKey,
             status: serverStatus
         };
-        await BmrServerController.GET_INSTANCE()
+        try {
+            await BmrServerController.GET_INSTANCE()
             .updateStatus(bmrServerStatusUpdate.status, connectionQuery.serialKey);
+            const authenticatedUser: BmrUser = new BmrUser(connectionQuery.userName);
+            const userController: BmrUserController = BmrUserController.GET_INSTANCE();
+            authenticatedUser.id = await userController.addUserIfNotPresent(authenticatedUser);
+            const serversOfUser: BmrServer[] = await userController.getServersOfUser(authenticatedUser);
+            logger.info(`serversOfUser: ${JSON.stringify(serversOfUser)}`);
+        } catch (error) {
+            logger.error(<Error>error);
+        }
         socket.to(connectionQuery.userName)
             .emit(socketMessages.statusUpdate, bmrServerStatusUpdate);
     }
