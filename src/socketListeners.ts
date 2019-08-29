@@ -18,12 +18,13 @@ class SocketListeners {
      */
     public onSocketConnect = async (socket: socketIo.Socket): Promise<void> => {
         logger.info('a user connected');
-        const connectionQuery: IConnectionQuery = <IConnectionQuery>(JSON.parse(<string>socket.handshake.query));
+        logger.info(`query params: ${JSON.stringify(socket.handshake.query)}`);
+        const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
         this.addToUserRoomIfNotHost(socket, connectionQuery);
         socket.on('disconnect', async () => {
             logger.info(`host: ${connectionQuery.isHost}`);
-            logger.info(`${connectionQuery.isHost === true ? 'Host' + ` ${connectionQuery.serialKey}` : 'Viewer'} socket disconnected`);
-            if (connectionQuery.isHost === true) {
+            logger.info(`${connectionQuery.isHost === 'true' ? 'Host' + ` ${connectionQuery.serialKey}` : 'Viewer'} socket disconnected`);
+            if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.offline);
             }
         });
@@ -154,7 +155,7 @@ class SocketListeners {
     }
 
     private addToUserRoomIfNotHost(socket: socketIo.Socket, connectionQuery: IConnectionQuery): void {
-        if (connectionQuery.isHost === false) {
+        if (connectionQuery.isHost === 'false') {
             socket.join(connectionQuery.userName, (error: Error): void => {
                 if (error === null) {
                     logger.info(`Room ${connectionQuery.userName} now has

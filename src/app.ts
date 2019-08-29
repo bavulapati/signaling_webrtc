@@ -1,5 +1,6 @@
 import fs from 'fs';
 import https from 'https';
+// import http from 'http';
 import socketIo from 'socket.io';
 import { allowConnectionOnAuthentication } from './allowConnectionOnAuthentication';
 import { closeDatabaseConnection, createDatabaseConnection } from './createDatabaseConnection';
@@ -10,12 +11,12 @@ const options: https.ServerOptions = {
   key: fs.readFileSync('/etc/letsencrypt/live/bmrsignal.idrivelite.com/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/bmrsignal.idrivelite.com/fullchain.pem')
 };
-
 const server: https.Server = new https.Server(options);
+const port: number = 443;
+// const server: http.Server = new http.Server();
+// const port: number = 8080;
 
 const io: socketIo.Server = socketIo(server);
-
-const port: number = 443;
 
 io.use(allowConnectionOnAuthentication);
 
