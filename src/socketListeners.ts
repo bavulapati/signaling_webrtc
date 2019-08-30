@@ -31,6 +31,12 @@ class SocketListeners {
             }
         });
 
+        socket.on(socketMessages.statusUpdate, async (status: ServerStatus) => {
+            if (connectionQuery.isHost === 'true') {
+                await this.updateBmrHostStatus(socket, connectionQuery, status);
+            }
+        });
+
         socket.on(socketMessages.register, async (room: string) => {
             logger.info(`a bmr server - ${room} want's to register`);
             try {
@@ -80,7 +86,7 @@ class SocketListeners {
 
         socket.on(socketMessages.hangUp, async (room: string) => {
             logger.info(`${room} wants to hang up call`);
-            await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
+            // await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
             socket.to(room)
                 .emit(socketMessages.hangUp);
         });
@@ -127,9 +133,9 @@ class SocketListeners {
                     logger.error(error);
                 }
             });
-            const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
-            connectionQuery.serialKey = room;
-            await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.insession);
+            // const connectionQuery: IConnectionQuery = <IConnectionQuery>(socket.handshake.query);
+            // connectionQuery.serialKey = room;
+            // await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.insession);
         } else {
             socket.emit(socketMessages.full, room); // max two clients
         }
