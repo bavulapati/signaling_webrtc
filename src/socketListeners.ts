@@ -27,7 +27,7 @@ class SocketListeners {
             if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.offline);
             } else {
-                logger.info(socket.server.sockets.adapter.rooms);
+                logger.info(JSON.stringify(socket.server.sockets.adapter.rooms));
             }
         });
 
