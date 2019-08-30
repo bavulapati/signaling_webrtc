@@ -26,6 +26,8 @@ class SocketListeners {
             logger.info(`${connectionQuery.isHost === 'true' ? 'Host' + ` ${connectionQuery.serialKey}` : 'Viewer'} socket disconnected`);
             if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.offline);
+            } else {
+                logger.info(socket.server.sockets.adapter.rooms);
             }
         });
 
