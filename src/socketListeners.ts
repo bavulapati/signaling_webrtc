@@ -34,7 +34,7 @@ class SocketListeners {
         socket.on(socketMessages.statusUpdate, async (status: ServerStatus, serialKey: string) => {
             if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, status);
-            } else {
+            } else if (serialKey !== null) {
                 const tempConnectionQuery: IConnectionQuery = connectionQuery;
                 tempConnectionQuery.serialKey = serialKey;
                 logger.info('serial of viewer ', serialKey);
@@ -147,8 +147,8 @@ class SocketListeners {
     }
 
     private async updateBmrHostStatus(socket: socketIo.Socket
-        ,                             connectionQuery: IConnectionQuery
-        ,                             serverStatus: ServerStatus): Promise<void> {
+        , connectionQuery: IConnectionQuery
+        , serverStatus: ServerStatus): Promise<void> {
 
         logger.info(`trying to update the status to ${serverStatus} for the server ${connectionQuery.serialKey}`);
         const bmrServerStatusUpdate: IBmrServerStatusUpdate = {
