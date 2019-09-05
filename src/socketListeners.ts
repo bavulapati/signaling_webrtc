@@ -147,8 +147,8 @@ class SocketListeners {
     }
 
     private async updateBmrHostStatus(socket: socketIo.Socket
-        , connectionQuery: IConnectionQuery
-        , serverStatus: ServerStatus): Promise<void> {
+        ,                             connectionQuery: IConnectionQuery
+        ,                             serverStatus: ServerStatus): Promise<void> {
 
         logger.info(`trying to update the status to ${serverStatus} for the server ${connectionQuery.serialKey}`);
         const bmrServerStatusUpdate: IBmrServerStatusUpdate = {
