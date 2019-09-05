@@ -31,9 +31,13 @@ class SocketListeners {
             }
         });
 
-        socket.on(socketMessages.statusUpdate, async (status: ServerStatus) => {
+        socket.on(socketMessages.statusUpdate, async (status: ServerStatus, serialKey: string) => {
             if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, status);
+            } else {
+                const tempConnectionQuery: IConnectionQuery = connectionQuery;
+                tempConnectionQuery.serialKey = serialKey;
+                await this.updateBmrHostStatus(socket, tempConnectionQuery, status);
             }
         });
 
