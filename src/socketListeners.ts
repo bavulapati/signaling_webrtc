@@ -37,6 +37,7 @@ class SocketListeners {
             } else {
                 const tempConnectionQuery: IConnectionQuery = connectionQuery;
                 tempConnectionQuery.serialKey = serialKey;
+                logger.info('serial of viewer ', serialKey);
                 await this.updateBmrHostStatus(socket, tempConnectionQuery, status);
             }
         });
