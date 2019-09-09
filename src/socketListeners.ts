@@ -36,9 +36,10 @@ class SocketListeners {
                 if (status === ServerStatus.online) {
                     socket.server.in(serialKey)
                         .clients((error: Error, socketIds: socketIo.Socket[]) => {
+                            logger.info(JSON.stringify(socketIds));
                             if (error !== null) { logger.error(error); }
                             socketIds.forEach((socketId: socketIo.Socket) => {
-                                if (socketId !== socket) { socketId.leave(serialKey, (err: Error) => { logger.info('a socket left'); }); }
+                                if (socketId !== socket) { socketId.leave(serialKey, () => { logger.info('a socket left'); }); }
                             });
                         });
                 }
