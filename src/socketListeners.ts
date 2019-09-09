@@ -191,21 +191,11 @@ class SocketListeners {
         ,                            serialKey: string): Promise<void> {
         if (connectionQuery.isHost === 'true') {
             await this.updateBmrHostStatus(socket, connectionQuery, status);
-            if (status === ServerStatus.online) {
-                socket.server.sockets.in(serialKey)
-                    .clients((error: Error, socketIds: string[]) => {
-                        logger.info('sockets in room ', serialKey, ' : '
-                            ,       JSON.stringify(socket.server.sockets.adapter.rooms[serialKey].sockets));
-                        if (error !== null) { logger.error(error); }
-                        socketIds.forEach((socketId: string) => {
-                            if (socketId !== socket.id) { socket.server.sockets.sockets[socketId].leave(serialKey, () => { logger.info('a socket left'); }); }
-                        });
-                    });
-            }
         } else if (serialKey !== null) {
             const tempConnectionQuery: IConnectionQuery = connectionQuery;
             tempConnectionQuery.serialKey = serialKey;
             logger.info('serial of viewer ', serialKey);
+            socket.leave(serialKey);
             await this.updateBmrHostStatus(socket, tempConnectionQuery, status);
         }
     }
