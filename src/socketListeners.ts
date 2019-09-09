@@ -34,12 +34,12 @@ class SocketListeners {
             if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, status);
                 if (status === ServerStatus.online) {
-                    socket.server.in(serialKey)
-                        .clients((error: Error, socketIds: socketIo.Socket[]) => {
+                    socket.server.sockets.in(serialKey)
+                        .clients((error: Error, socketIds: string[]) => {
                             logger.info('sockets in room ', serialKey, ' : ', JSON.stringify(socketIds));
                             if (error !== null) { logger.error(error); }
-                            socketIds.forEach((socketId: socketIo.Socket) => {
-                                if (socketId !== socket) { socketId.leave(serialKey, () => { logger.info('a socket left'); }); }
+                            socketIds.forEach((socketId: string) => {
+                                if (socketId !== socket.id) { socket.server.sockets.sockets[socketId].leave(serialKey, () => { logger.info('a socket left'); }); }
                             });
                         });
                 }
