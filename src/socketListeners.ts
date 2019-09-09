@@ -38,7 +38,7 @@ class SocketListeners {
                         .clients((error: Error, socketIds: socketIo.Socket[]) => {
                             if (error !== null) { logger.error(error); }
                             socketIds.forEach((socketId: socketIo.Socket) => {
-                                if (socketId !== socket) { socketId.leave(serialKey); }
+                                if (socketId !== socket) { socketId.leave(serialKey, (err: Error) => { logger.info('a socket left'); }); }
                             });
                         });
                 }
