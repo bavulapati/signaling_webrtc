@@ -101,6 +101,7 @@ class SocketListeners {
     }
 
     private async createOrJoinRoom(socket: socketIo.Socket, room: string): Promise<void> {
+        socket.leave(room);
         logger.info(`Received request to create or join room ${room}`);
         logger.info(socket.server.sockets.adapter.rooms[room]);
         const numClients: number = socket.server.sockets.adapter.rooms[room]
@@ -191,11 +192,12 @@ class SocketListeners {
         ,                            serialKey: string): Promise<void> {
         if (connectionQuery.isHost === 'true') {
             await this.updateBmrHostStatus(socket, connectionQuery, status);
+            // socket.
         } else if (serialKey !== null) {
             const tempConnectionQuery: IConnectionQuery = connectionQuery;
             tempConnectionQuery.serialKey = serialKey;
             logger.info('serial of viewer ', serialKey);
-            socket.leave(serialKey);
+            // socket.leave(serialKey);
             await this.updateBmrHostStatus(socket, tempConnectionQuery, status);
         }
     }
