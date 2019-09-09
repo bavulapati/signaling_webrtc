@@ -102,7 +102,7 @@ class SocketListeners {
     }
 
     private async createOrJoinRoom(socket: socketIo.Socket, room: string): Promise<void> {
-        socket.leave(room);
+        // socket.leave(room);
         logger.info(`Received request to create or join room ${room}`);
         logger.info(socket.server.sockets.adapter.rooms[room]);
         const numClients: number = socket.server.sockets.adapter.rooms[room]
