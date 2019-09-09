@@ -31,24 +31,7 @@ class SocketListeners {
             }
         });
         socket.on(socketMessages.statusUpdate, async (status: ServerStatus, serialKey: string) => {
-            if (connectionQuery.isHost === 'true') {
-                await this.updateBmrHostStatus(socket, connectionQuery, status);
-                if (status === ServerStatus.online) {
-                    socket.server.sockets.in(serialKey)
-                        .clients((error: Error, socketIds: string[]) => {
-                            logger.info('sockets in room ', serialKey, ' : ', JSON.stringify(socketIds));
-                            if (error !== null) { logger.error(error); }
-                            socketIds.forEach((socketId: string) => {
-                                if (socketId !== socket.id) { socket.server.sockets.sockets[socketId].leave(serialKey, () => { logger.info('a socket left'); }); }
-                            });
-                        });
-                }
-            } else if (serialKey !== null) {
-                const tempConnectionQuery: IConnectionQuery = connectionQuery;
-                tempConnectionQuery.serialKey = serialKey;
-                logger.info('serial of viewer ', serialKey);
-                await this.updateBmrHostStatus(socket, tempConnectionQuery, status);
-            }
+            await this.handleStatusUpdate(socket, connectionQuery, status, serialKey);
         });
 
         socket.on(socketMessages.register, async (room: string) => {
@@ -199,6 +182,31 @@ class SocketListeners {
             socket.emit(socketMessages.serverList, serversOfUser);
         } catch (error) {
             logger.error(<Error>error);
+        }
+    }
+
+    private async handleStatusUpdate(socket: socketIo.Socket
+        ,                            connectionQuery: IConnectionQuery
+        ,                            status: ServerStatus
+        ,                            serialKey: string): Promise<void> {
+        if (connectionQuery.isHost === 'true') {
+            await this.updateBmrHostStatus(socket, connectionQuery, status);
+            if (status === ServerStatus.online) {
+                socket.server.sockets.in(serialKey)
+                    .clients((error: Error, socketIds: string[]) => {
+                        logger.info('sockets in room ', serialKey, ' : '
+                            ,       JSON.stringify(socket.server.sockets.adapter.rooms[serialKey].sockets));
+                        if (error !== null) { logger.error(error); }
+                        socketIds.forEach((socketId: string) => {
+                            if (socketId !== socket.id) { socket.server.sockets.sockets[socketId].leave(serialKey, () => { logger.info('a socket left'); }); }
+                        });
+                    });
+            }
+        } else if (serialKey !== null) {
+            const tempConnectionQuery: IConnectionQuery = connectionQuery;
+            tempConnectionQuery.serialKey = serialKey;
+            logger.info('serial of viewer ', serialKey);
+            await this.updateBmrHostStatus(socket, tempConnectionQuery, status);
         }
     }
 
