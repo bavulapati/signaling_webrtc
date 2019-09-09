@@ -30,10 +30,18 @@ class SocketListeners {
                 logger.info(JSON.stringify(socket.server.sockets.adapter.rooms));
             }
         });
-
         socket.on(socketMessages.statusUpdate, async (status: ServerStatus, serialKey: string) => {
             if (connectionQuery.isHost === 'true') {
                 await this.updateBmrHostStatus(socket, connectionQuery, status);
+                if (status === ServerStatus.online) {
+                    socket.server.in(serialKey)
+                        .clients((error: Error, socketIds: socketIo.Socket[]) => {
+                            if (error !== null) { logger.error(error); }
+                            socketIds.forEach((socketId: socketIo.Socket) => {
+                                if (socketId !== socket) { socketId.leave(serialKey); }
+                            });
+                        });
+                }
             } else if (serialKey !== null) {
                 const tempConnectionQuery: IConnectionQuery = connectionQuery;
                 tempConnectionQuery.serialKey = serialKey;
