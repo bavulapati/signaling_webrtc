@@ -83,6 +83,7 @@ class SocketListeners {
 
         socket.on(socketMessages.hangUp, async (room: string) => {
             logger.info(`${room} wants to hang up call`);
+            socket.leave(room);
             // await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
             socket.to(room)
                 .emit(socketMessages.hangUp);
