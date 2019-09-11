@@ -1,4 +1,4 @@
-import { ServerStatus, tokenResponseMessage } from './enums';
+import { ServerStatus } from './enums';
 
 export interface ICandidateMsg {
     label: number;
@@ -23,15 +23,4 @@ export interface IConnectionQuery {
 export interface IBmrServerStatusUpdate {
     serialKey: string;
     status: ServerStatus;
-}
-
-export interface IValidateTokenResponse {
-    root: {
-        status: {
-            _attributes: {
-                desc: string;
-                message: tokenResponseMessage;
-            };
-        };
-    };
 }

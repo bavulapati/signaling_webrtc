@@ -1,11 +1,10 @@
 import { ClientRequest, IncomingMessage } from 'http';
 import { request, RequestOptions } from 'https';
 import { stringify } from 'querystring';
-import { xml2json } from 'xml-js';
 import { BmrUserController } from './controllers/BmrUserController';
 import { BmrUser } from './entity/BmrUser';
 import { tokenResponseMessage } from './enums';
-import { IConnectionQuery, IValidateTokenResponse } from './interfaces';
+import { IConnectionQuery } from './interfaces';
 import { logger } from './logger';
 
 export const allowConnectionOnAuthentication: (socket: SocketIO.Socket, next: (err?: Error) => void) => void
@@ -65,18 +64,13 @@ async function isValidUser(connectionQuery: IConnectionQuery): Promise<boolean> 
                 res.on('end', () => {
                     const body: Buffer = Buffer.concat(chunks);
                     logger.info(`verify token response: ${body.toString()
-                        .replace('Content-Type: application/xml', '')
                         .trim()}`);
-                    const tr: string = xml2json(body.toString()
-                        .replace('Content-Type: application/xml; charset=ISO-8859-1', '')
-                        .trim(),
-                                                { ignoreDeclaration: true, spaces: 4, compact: true, ignoreText: true });
-                    const tokenResponse: IValidateTokenResponse = <IValidateTokenResponse>JSON.parse(tr);
-                    logger.info('is it success : ', tokenResponse.root.status._attributes.message);
-                    if (tokenResponse.root.status._attributes.message === tokenResponseMessage.success) {
+                    if (body.toString()
+                        .trim()
+                        .includes(tokenResponseMessage.success) === true) {
                         resolve(true);
                     } else {
-                        reject(tokenResponse.root.status._attributes.desc);
+                        reject('unauthorized user');
                     }
                 });
             });
