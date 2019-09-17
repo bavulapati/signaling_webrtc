@@ -157,7 +157,7 @@ class SocketListeners {
         } catch (error) {
             logger.error(<Error>error);
         }
-        socket.to(connectionQuery.userName)
+        socket.server.in(connectionQuery.userName)
             .emit(socketMessages.statusUpdate, bmrServerStatusUpdate);
     }
 
