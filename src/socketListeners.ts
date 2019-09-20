@@ -34,17 +34,7 @@ class SocketListeners {
             await this.handleStatusUpdate(socket, connectionQuery, status, serialKey);
         });
 
-        socket.on(socketMessages.register, async (room: string) => {
-            logger.info(`a bmr server - ${room} want's to register`);
-            try {
-                const response: number = await BmrServerController.GET_INSTANCE()
-                    .addServerIfNotPresent(connectionQuery, room);
-                logger.info(`response: ${response}`);
-                await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
-            } catch (error) {
-                logger.error(`${error}`);
-            }
-        });
+        if (connectionQuery.isHost === 'true') { await this.registerHost(socket, connectionQuery); }
 
         socket.on('echo', (message: string): void => {
             logger.info(`receied echo messages as ${message}`);
@@ -98,6 +88,18 @@ class SocketListeners {
             await this.emitServersList(userName, socket);
         } catch (error) {
             logger.error(`error:  --- ${error}`);
+        }
+    }
+
+    private async registerHost(socket: socketIo.Socket, connectionQuery: IConnectionQuery): Promise<void> {
+        try {
+            logger.info(`a bmr server - ${connectionQuery.serialKey} want's to register`);
+            const response: number = await BmrServerController.GET_INSTANCE()
+                .addServerIfNotPresent(connectionQuery);
+            logger.info(`response: ${response}`);
+            await this.updateBmrHostStatus(socket, connectionQuery, ServerStatus.online);
+        } catch (error) {
+            logger.error(`${error}`);
         }
     }
 

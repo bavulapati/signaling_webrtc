@@ -47,10 +47,10 @@ export class BmrServerController {
         }
     }
 
-    public async addServerIfNotPresent(connectionQuery: IConnectionQuery, room: string): Promise<number> {
+    public async addServerIfNotPresent(connectionQuery: IConnectionQuery): Promise<number> {
         const user: BmrUser = new BmrUser(connectionQuery.userName);
         const bmrServer: BmrServer
-            = new BmrServer(room, room, ServerStatus.online, user);
+            = new BmrServer(connectionQuery.serialKey, connectionQuery.serialKey, ServerStatus.online, user);
         let persistedBmrServer: BmrServer;
         try {
             const serverRepository: Repository<BmrServer> = getRepository(BmrServer);
